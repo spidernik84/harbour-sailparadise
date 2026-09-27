@@ -8,6 +8,7 @@ var apiBase = "https://api.radioparadise.com/api/"
 var imageBase = "https://img.radioparadise.com/channels/0/"
 
 var defaultQuality = "aac-320"
+var defaultMobileQuality = "aac-128"
 
 var qualities = [
     { key: "aac-320", label: "AAC 320 kbps" },
@@ -94,14 +95,38 @@ function indexOfChannel(channelId) {
     return 0
 }
 
-function streamUrl(channel, quality) {
+// The quality actually streamed for a channel, as not every channel has every quality
+function streamQuality(channel, quality) {
     if (channel.streams[quality])
-        return channel.streams[quality]
+        return quality
     if (channel.streams[defaultQuality])
-        return channel.streams[defaultQuality]
+        return defaultQuality
     for (var key in channel.streams)
-        return channel.streams[key]
+        return key
     return ""
+}
+
+function streamUrl(channel, quality) {
+    var key = streamQuality(channel, quality)
+    return key !== "" ? channel.streams[key] : ""
+}
+
+function qualityLabel(key) {
+    for (var i = 0; i < qualities.length; i++) {
+        if (qualities[i].key === key)
+            return qualities[i].label
+    }
+    if (key === "aac-64")
+        return "AAC 64 kbps"    // Serenity only
+    return key
+}
+
+// Formats the quality reported by the block API, e.g. "320k aac" or "flac"
+function blockQualityLabel(quality) {
+    var match = /^(\d+)k\s+(\w+)$/.exec(quality || "")
+    if (match)
+        return match[2].toUpperCase() + " " + match[1] + " kbps"
+    return (quality || "").toUpperCase()
 }
 
 function nowPlayingUrl(channelId) {

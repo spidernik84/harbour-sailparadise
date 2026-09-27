@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import QtMultimedia 5.6
 import Nemo.Configuration 1.0
+import harbour.sailparadise 1.0
 import "../js/Channels.js" as Channels
 
 // Plays either a live Radio Paradise channel, keeping the "now playing"
@@ -10,7 +11,18 @@ Item {
 
     readonly property int channelIndex: Channels.indexOfChannel(settings.channelId)
     readonly property var channel: Channels.channels[channelIndex]
-    readonly property string quality: settings.quality
+    // Stream quality for the current connection. Losing the connection keeps the last
+    // known type, so a short outage does not reconnect with a different quality.
+    // Until a connection is known the Wi-Fi quality is used.
+    readonly property bool onMobileData: _connectionType === NetworkMonitor.Mobile
+    readonly property string wifiQuality: settings.quality
+    readonly property string mobileQuality: settings.mobileQuality
+    readonly property string quality: onMobileData ? mobileQuality : wifiQuality
+    readonly property int connectionType: _connectionType
+    readonly property bool showQualityInfo: settings.showQualityInfo
+    // Human readable quality of what is playing
+    readonly property string qualityLabel: offline ? Channels.blockQualityLabel(_offlineQuality)
+                                                   : Channels.qualityLabel(Channels.streamQuality(channel, quality))
 
     // Offline playback of a cache block
     readonly property bool offline: _offlineCacheId !== ""
@@ -41,6 +53,7 @@ Item {
     readonly property string coverSmall: _current.cover_med || _current.cover || ""
 
     property bool _wantPlaying: false
+    property int _connectionType: NetworkMonitor.Unknown
     property string _errorString
     property var _meta: ({})
     property int _retries: 0
@@ -48,6 +61,7 @@ Item {
 
     property string _offlineCacheId
     property string _offlineTitle
+    property string _offlineQuality
     property var _offlineTracks: []
     property int _offlineIndex: -1
     property bool _offlineEnded: false
@@ -104,10 +118,20 @@ Item {
             play()
     }
 
-    function setQuality(key) {
-        if (key === quality)
-            return
+    function setWifiQuality(key) {
         settings.quality = key
+    }
+
+    function setMobileQuality(key) {
+        settings.mobileQuality = key
+    }
+
+    function setShowQualityInfo(show) {
+        settings.showQualityInfo = show
+    }
+
+    // Reconnect with the new stream, e.g. when switching between Wi-Fi and mobile data
+    onQualityChanged: {
         if (_wantPlaying && !offline)
             play()
     }
@@ -119,6 +143,7 @@ Item {
         _errorString = ""
         _offlineCacheId = cacheId
         _offlineTitle = title
+        _offlineQuality = blockCache.quality(cacheId)
         _offlineTracks = blockCache.tracks(cacheId)
         _playOffline(_findAvailable(index || 0, 1))
     }
@@ -231,6 +256,7 @@ Item {
         audio.source = ""
         _offlineCacheId = ""
         _offlineTitle = ""
+        _offlineQuality = ""
         _offlineTracks = []
         _offlineIndex = -1
         _offlineEnded = false
@@ -243,7 +269,20 @@ Item {
             metadataTimer.stop()
     }
 
-    Component.onCompleted: refreshMetadata()
+    function _updateConnectionType() {
+        if (networkMonitor.connectionType !== NetworkMonitor.Unknown)
+            _connectionType = networkMonitor.connectionType
+    }
+
+    Component.onCompleted: {
+        _updateConnectionType()
+        refreshMetadata()
+    }
+
+    Connections {
+        target: networkMonitor
+        onConnectionTypeChanged: _updateConnectionType()
+    }
 
     Connections {
         target: blockCache
@@ -259,7 +298,10 @@ Item {
         path: "/apps/harbour-sailparadise"
 
         property int channelId: 0
+        // Wi-Fi quality, the key predates the mobile data setting
         property string quality: Channels.defaultQuality
+        property string mobileQuality: Channels.defaultMobileQuality
+        property bool showQualityInfo: true
     }
 
     Audio {

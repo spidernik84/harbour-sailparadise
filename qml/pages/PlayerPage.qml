@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import harbour.sailparadise 1.0
 
 Page {
     id: page
@@ -173,6 +174,26 @@ Page {
                     anchors.centerIn: parent
                     size: BusyIndicatorSize.Large
                     running: radio.buffering
+                }
+            }
+
+            Label {
+                width: parent.width
+                horizontalAlignment: Text.AlignHCenter
+                font.pixelSize: Theme.fontSizeTiny
+                color: Theme.secondaryColor
+                opacity: Theme.opacityHigh
+                visible: radio.showQualityInfo && radio.qualityLabel !== ""
+                text: {
+                    var parts = [radio.qualityLabel]
+                    // Offline playback is already shown in the header
+                    if (!radio.offline) {
+                        if (radio.connectionType === NetworkMonitor.Mobile)
+                            parts.push(qsTr("Mobile data"))
+                        else if (radio.connectionType === NetworkMonitor.WiFi)
+                            parts.push(qsTr("Wi-Fi"))
+                    }
+                    return parts.join(" · ")
                 }
             }
 

@@ -261,6 +261,12 @@ QVariantList BlockCache::tracks(const QString &cacheId) const
     return result;
 }
 
+QString BlockCache::quality(const QString &cacheId) const
+{
+    const int i = indexOf(cacheId);
+    return i < 0 ? QString() : m_entries.at(i).quality;
+}
+
 qint64 BlockCache::estimateSize(int bitrate, int minutes) const
 {
     // Measured average bitrates of the block files, in kbit/s

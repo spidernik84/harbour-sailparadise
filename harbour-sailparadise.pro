@@ -17,9 +17,11 @@ CONFIG += sailfishapp
 QT += network
 
 SOURCES += src/harbour-sailparadise.cpp \
-    src/blockcache.cpp
+    src/blockcache.cpp \
+    src/networkmonitor.cpp
 
-HEADERS += src/blockcache.h
+HEADERS += src/blockcache.h \
+    src/networkmonitor.h
 
 DISTFILES += qml/harbour-sailparadise.qml \
     qml/components/MediaControls.qml \
