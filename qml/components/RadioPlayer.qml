@@ -3,13 +3,26 @@ import QtMultimedia 5.6
 import Nemo.Configuration 1.0
 import "../js/Channels.js" as Channels
 
-// Plays a Radio Paradise channel and keeps the "now playing" metadata up to date.
+// Plays either a live Radio Paradise channel, keeping the "now playing"
+// metadata up to date, or the tracks of an offline cache block.
 Item {
     id: root
 
     readonly property int channelIndex: Channels.indexOfChannel(settings.channelId)
     readonly property var channel: Channels.channels[channelIndex]
     readonly property string quality: settings.quality
+
+    // Offline playback of a cache block
+    readonly property bool offline: _offlineCacheId !== ""
+    readonly property string offlineCacheId: _offlineCacheId
+    readonly property string offlineTitle: _offlineTitle
+    readonly property int offlineIndex: _offlineIndex
+    readonly property int offlineCount: _offlineTracks.length
+    readonly property bool hasNext: offline && _findAvailable(_offlineIndex + 1, 1) >= 0
+    readonly property bool hasPrevious: offline && _findAvailable(_offlineIndex - 1, -1) >= 0
+    readonly property int position: audio.position
+    readonly property int duration: audio.duration
+    readonly property bool seekable: offline && audio.seekable
 
     // true while the user wants audio; the actual stream state may lag behind
     readonly property bool active: _wantPlaying
@@ -20,12 +33,12 @@ Item {
                                           || !playing)
     readonly property string errorString: _errorString
 
-    readonly property string artist: _meta.artist || ""
-    readonly property string title: _meta.title || ""
-    readonly property string album: _meta.album || ""
-    readonly property string year: _meta.year || ""
-    readonly property string cover: _meta.cover || ""
-    readonly property string coverSmall: _meta.cover_med || _meta.cover || ""
+    readonly property string artist: _current.artist || ""
+    readonly property string title: _current.title || ""
+    readonly property string album: _current.album || ""
+    readonly property string year: _current.year || ""
+    readonly property string cover: _current.cover || ""
+    readonly property string coverSmall: _current.cover_med || _current.cover || ""
 
     property bool _wantPlaying: false
     property string _errorString
@@ -33,21 +46,40 @@ Item {
     property int _retries: 0
     property int _request: 0
 
+    property string _offlineCacheId
+    property string _offlineTitle
+    property var _offlineTracks: []
+    property int _offlineIndex: -1
+    property bool _offlineEnded: false
+
+    readonly property var _current: offline ? (_offlineTracks[_offlineIndex] || {}) : _meta
     readonly property int _maxRetries: 5
-    readonly property bool _metadataActive: _wantPlaying || Qt.application.state === Qt.ApplicationActive
+    readonly property bool _metadataActive: !offline
+                                            && (_wantPlaying || Qt.application.state === Qt.ApplicationActive)
 
     function play() {
         _errorString = ""
+        if (offline) {
+            if (_offlineIndex < 0 || _offlineEnded) {
+                _playOffline(_findAvailable(0, 1))
+            } else {
+                _wantPlaying = true
+                audio.play()
+            }
+            return
+        }
         _wantPlaying = true
-        audio.source = Channels.streamUrl(channel, quality)
-        audio.play()
+        _load(Channels.streamUrl(channel, quality))
     }
 
     function stop() {
         _wantPlaying = false
         retryTimer.stop()
         _retries = 0
-        audio.stop()
+        if (offline)
+            audio.pause()
+        else
+            audio.stop()
     }
 
     function toggle() {
@@ -58,10 +90,15 @@ Item {
     }
 
     function setChannel(channelId) {
-        if (channelId === channel.id)
+        var changed = offline || channelId !== channel.id
+        if (offline)
+            _clearOffline()
+        if (!changed)
             return
-        settings.channelId = channelId
-        _meta = {}
+        if (channelId !== channel.id) {
+            settings.channelId = channelId
+            _meta = {}
+        }
         refreshMetadata()
         if (_wantPlaying)
             play()
@@ -71,8 +108,47 @@ Item {
         if (key === quality)
             return
         settings.quality = key
-        if (_wantPlaying)
+        if (_wantPlaying && !offline)
             play()
+    }
+
+    // Starts playing the downloaded tracks of a cache block from the given track
+    function playCache(cacheId, title, index) {
+        retryTimer.stop()
+        _retries = 0
+        _errorString = ""
+        _offlineCacheId = cacheId
+        _offlineTitle = title
+        _offlineTracks = blockCache.tracks(cacheId)
+        _playOffline(_findAvailable(index || 0, 1))
+    }
+
+    // Leaves offline mode, e.g. when the played cache block is deleted
+    function leaveOffline() {
+        if (!offline)
+            return
+        stop()
+        _clearOffline()
+        refreshMetadata()
+    }
+
+    function next() {
+        if (offline)
+            _playOffline(_findAvailable(_offlineIndex + 1, 1))
+    }
+
+    function previous() {
+        if (!offline)
+            return
+        if (audio.position > 3000 || !hasPrevious)
+            audio.seek(0)
+        else
+            _playOffline(_findAvailable(_offlineIndex - 1, -1))
+    }
+
+    function seek(position) {
+        if (seekable)
+            audio.seek(position)
     }
 
     function refreshMetadata() {
@@ -119,6 +195,47 @@ Item {
         retryTimer.restart()
     }
 
+    // Index of the first downloaded track starting at "from" in the given direction, or -1
+    function _findAvailable(from, direction) {
+        for (var i = from; i >= 0 && i < _offlineTracks.length; i += direction) {
+            if (_offlineTracks[i].downloaded)
+                return i
+        }
+        return -1
+    }
+
+    function _playOffline(index) {
+        if (index < 0) {
+            // End of the cache block
+            _wantPlaying = false
+            _offlineEnded = true
+            audio.stop()
+            return
+        }
+        _offlineEnded = false
+        _offlineIndex = index
+        _wantPlaying = true
+        _load(_offlineTracks[index].source)
+    }
+
+    function _load(source) {
+        // Changing the source of a playing Audio element does not reload the
+        // media, the old one keeps playing. Stop it first.
+        audio.stop()
+        audio.source = source
+        audio.play()
+    }
+
+    function _clearOffline() {
+        audio.stop()
+        audio.source = ""
+        _offlineCacheId = ""
+        _offlineTitle = ""
+        _offlineTracks = []
+        _offlineIndex = -1
+        _offlineEnded = false
+    }
+
     on_MetadataActiveChanged: {
         if (_metadataActive)
             refreshMetadata()
@@ -127,6 +244,15 @@ Item {
     }
 
     Component.onCompleted: refreshMetadata()
+
+    Connections {
+        target: blockCache
+        // Pick up tracks that finished downloading while playing the block
+        onTracksChanged: {
+            if (cacheId === _offlineCacheId)
+                _offlineTracks = blockCache.tracks(cacheId)
+        }
+    }
 
     ConfigurationGroup {
         id: settings
@@ -146,15 +272,20 @@ Item {
                 _retries = 0
                 _errorString = ""
             } else if (status === Audio.EndOfMedia) {
-                // A live stream should never end: the connection was dropped
-                _retry()
+                if (offline)
+                    next()
+                else
+                    _retry()    // A live stream should never end: the connection was dropped
             }
         }
 
         onError: {
             console.warn("Playback error:", error, errorString)
             _errorString = errorString
-            _retry()
+            if (offline)
+                next()
+            else
+                _retry()
         }
     }
 

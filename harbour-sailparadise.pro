@@ -14,12 +14,19 @@ TARGET = harbour-sailparadise
 
 CONFIG += sailfishapp
 
-SOURCES += src/harbour-sailparadise.cpp
+QT += network
+
+SOURCES += src/harbour-sailparadise.cpp \
+    src/blockcache.cpp
+
+HEADERS += src/blockcache.h
 
 DISTFILES += qml/harbour-sailparadise.qml \
     qml/components/RadioPlayer.qml \
     qml/cover/CoverPage.qml \
     qml/js/Channels.js \
+    qml/pages/CacheDetailPage.qml \
+    qml/pages/CachePage.qml \
     qml/pages/ChannelsPage.qml \
     qml/pages/PlayerPage.qml \
     qml/pages/SettingsPage.qml \

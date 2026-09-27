@@ -16,6 +16,14 @@ var qualities = [
     { key: "flac",    label: "FLAC" }
 ]
 
+// Qualities available for offline cache blocks, "bitrate" as used by the block API
+var cacheQualities = [
+    { bitrate: 3, label: "AAC 320 kbps" },
+    { bitrate: 2, label: "AAC 128 kbps" },
+    { bitrate: 1, label: "AAC 64 kbps" },
+    { bitrate: 4, label: "FLAC" }
+]
+
 function standardStreams(prefix) {
     return {
         "aac-320": streamBase + prefix + "320",

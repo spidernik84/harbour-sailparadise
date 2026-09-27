@@ -7,6 +7,8 @@ Page {
     allowedOrientations: Orientation.All
 
     readonly property bool isLandscape: page.width > page.height
+    // Used by other pages to navigate back to the player
+    readonly property bool isPlayerPage: true
 
     SilicaFlickable {
         anchors.fill: parent
@@ -18,8 +20,17 @@ Page {
                 onClicked: pageStack.animatorPush(Qt.resolvedUrl("SettingsPage.qml"))
             }
             MenuItem {
+                text: qsTr("Offline cache")
+                onClicked: pageStack.animatorPush(Qt.resolvedUrl("CachePage.qml"))
+            }
+            MenuItem {
                 text: qsTr("Channels")
                 onClicked: pageStack.animatorPush(Qt.resolvedUrl("ChannelsPage.qml"))
+            }
+            MenuItem {
+                text: qsTr("Back to live radio")
+                visible: radio.offline
+                onClicked: radio.setChannel(radio.channel.id)
             }
         }
 
@@ -29,8 +40,10 @@ Page {
             spacing: Theme.paddingLarge
 
             PageHeader {
-                title: radio.channel.title
-                description: "Radio Paradise"
+                title: radio.offline ? radio.offlineTitle : radio.channel.title
+                description: radio.offline
+                             ? qsTr("Offline, track %1 of %2").arg(radio.offlineIndex + 1).arg(radio.offlineCount)
+                             : "Radio Paradise"
             }
 
             Item {
@@ -96,9 +109,45 @@ Page {
                 }
             }
 
+            Slider {
+                id: positionSlider
+                width: parent.width
+                visible: radio.offline
+                enabled: radio.seekable
+                minimumValue: 0
+                maximumValue: Math.max(1, radio.duration)
+                valueText: Format.formatDuration(value / 1000, Formatter.DurationShort)
+                label: Format.formatDuration(radio.duration / 1000, Formatter.DurationShort)
+                onDownChanged: {
+                    if (!down)
+                        radio.seek(value)
+                }
+
+                // Not a binding: dragging the slider would break it
+                Connections {
+                    target: radio
+                    onPositionChanged: {
+                        if (!positionSlider.down)
+                            positionSlider.value = radio.position
+                    }
+                }
+            }
+
             Item {
                 width: parent.width
                 height: Theme.itemSizeLarge
+
+                IconButton {
+                    anchors {
+                        right: playButton.left
+                        rightMargin: Theme.paddingLarge
+                        verticalCenter: parent.verticalCenter
+                    }
+                    visible: radio.offline
+                    enabled: radio.hasPrevious || radio.position > 0
+                    icon.source: "image://theme/icon-m-previous"
+                    onClicked: radio.previous()
+                }
 
                 IconButton {
                     id: playButton
@@ -106,6 +155,18 @@ Page {
                     icon.source: radio.active ? "image://theme/icon-l-pause"
                                               : "image://theme/icon-l-play"
                     onClicked: radio.toggle()
+                }
+
+                IconButton {
+                    anchors {
+                        left: playButton.right
+                        leftMargin: Theme.paddingLarge
+                        verticalCenter: parent.verticalCenter
+                    }
+                    visible: radio.offline
+                    enabled: radio.hasNext
+                    icon.source: "image://theme/icon-m-next"
+                    onClicked: radio.next()
                 }
 
                 BusyIndicator {

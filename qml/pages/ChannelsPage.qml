@@ -19,7 +19,7 @@ Page {
             id: item
 
             readonly property var channel: modelData
-            readonly property bool current: channel.id === radio.channel.id
+            readonly property bool current: !radio.offline && channel.id === radio.channel.id
 
             contentHeight: Theme.itemSizeLarge
             highlighted: down || current

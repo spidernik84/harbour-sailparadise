@@ -23,7 +23,7 @@ CoverBackground {
 
         Label {
             width: parent.width
-            text: radio.channel.title
+            text: radio.offline ? qsTr("Offline") + " · " + radio.offlineTitle : radio.channel.title
             color: Theme.secondaryHighlightColor
             font.pixelSize: Theme.fontSizeExtraSmall
             truncationMode: TruncationMode.Fade
@@ -51,10 +51,27 @@ CoverBackground {
     }
 
     CoverActionList {
+        enabled: !radio.offline
+
         CoverAction {
             iconSource: radio.active ? "image://theme/icon-cover-pause"
                                      : "image://theme/icon-cover-play"
             onTriggered: radio.toggle()
+        }
+    }
+
+    CoverActionList {
+        enabled: radio.offline
+
+        CoverAction {
+            iconSource: radio.active ? "image://theme/icon-cover-pause"
+                                     : "image://theme/icon-cover-play"
+            onTriggered: radio.toggle()
+        }
+
+        CoverAction {
+            iconSource: "image://theme/icon-cover-next-song"
+            onTriggered: radio.next()
         }
     }
 }
