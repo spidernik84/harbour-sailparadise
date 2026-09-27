@@ -16,6 +16,27 @@ CONFIG += sailfishapp
 
 QT += network
 
+# The version shown on the About page is defined in the RPM spec. Qt Creator runs
+# qmake itself and never executes the spec's %build section, so read it from there.
+SPEC_FILE = $$PWD/rpm/harbour-sailparadise.spec
+isEmpty(VERSION) {
+    SPEC_LINES = $$cat($$SPEC_FILE, lines)
+    SPEC_VERSION = $$find(SPEC_LINES, ^Version:)
+    VERSION = $$replace(SPEC_VERSION, ^Version:\\s*, )
+}
+isEmpty(VERSION): error("Cannot read the version from $$SPEC_FILE")
+# Re-run qmake when the spec changes
+QMAKE_INTERNAL_INCLUDED_FILES += $$SPEC_FILE
+
+# A generated header rather than DEFINES: make does not rebuild objects when only
+# DEFINES change. The header is only rewritten when the version changes.
+VERSION_HEADER = $$OUT_PWD/appversion.h
+VERSION_HEADER_CONTENT = "$${LITERAL_HASH}define APP_VERSION \"$$VERSION\""
+!equals(VERSION_HEADER_CONTENT, $$cat($$VERSION_HEADER, blob)) {
+    write_file($$VERSION_HEADER, VERSION_HEADER_CONTENT)|error("Cannot write $$VERSION_HEADER")
+}
+INCLUDEPATH += $$OUT_PWD
+
 SOURCES += src/harbour-sailparadise.cpp \
     src/blockcache.cpp \
     src/networkmonitor.cpp
@@ -28,6 +49,7 @@ DISTFILES += qml/harbour-sailparadise.qml \
     qml/components/RadioPlayer.qml \
     qml/cover/CoverPage.qml \
     qml/js/Channels.js \
+    qml/pages/AboutPage.qml \
     qml/pages/CacheDetailPage.qml \
     qml/pages/CachePage.qml \
     qml/pages/ChannelsPage.qml \

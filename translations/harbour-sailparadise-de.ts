@@ -2,6 +2,57 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="de">
 <context>
+    <name>AboutPage</name>
+    <message>
+        <source>About</source>
+        <translation>Über</translation>
+    </message>
+    <message>
+        <source>Version %1</source>
+        <translation>Version %1</translation>
+    </message>
+    <message>
+        <source>A Radio Paradise player for Sailfish OS.</source>
+        <translation>Ein Radio-Paradise-Player für Sailfish OS.</translation>
+    </message>
+    <message>
+        <source>Radio Paradise</source>
+        <translation>Radio Paradise</translation>
+    </message>
+    <message>
+        <source>Radio Paradise is an independent internet radio station. Its eclectic mixes of rock, pop, world, electronica, jazz and more are hand-picked by real humans, not by algorithms, and streamed in high quality all around the world.</source>
+        <translation>Radio Paradise ist ein unabhängiger Internetradiosender. Seine vielseitigen Mixe aus Rock, Pop, Weltmusik, Electronica, Jazz und mehr werden von echten Menschen statt von Algorithmen ausgewählt und in hoher Qualität in die ganze Welt gestreamt.</translation>
+    </message>
+    <message>
+        <source>Radio Paradise is 100% listener-supported: no ads, no commercial sponsors. It only exists thanks to donations from people like you.</source>
+        <translation>Radio Paradise wird zu 100 % von seinen Hörern finanziert: keine Werbung, keine kommerziellen Sponsoren. Es existiert nur dank Spenden von Menschen wie dir.</translation>
+    </message>
+    <message>
+        <source>If you enjoy the music, please consider supporting them.</source>
+        <translation>Wenn dir die Musik gefällt, unterstütze den Sender bitte.</translation>
+    </message>
+    <message>
+        <source>Donate to Radio Paradise</source>
+        <translation>An Radio Paradise spenden</translation>
+    </message>
+    <message>
+        <source>This app</source>
+        <translation>Diese App</translation>
+    </message>
+    <message>
+        <source>SailParadise is an unofficial app and is not affiliated with Radio Paradise.</source>
+        <translation>SailParadise ist eine inoffizielle App und steht in keiner Verbindung zu Radio Paradise.</translation>
+    </message>
+    <message>
+        <source>Source code</source>
+        <translation>Quellcode</translation>
+    </message>
+    <message>
+        <source>Forum thread</source>
+        <translation>Forenthread</translation>
+    </message>
+</context>
+<context>
     <name>BlockCache</name>
     <message>
         <source>No tracks available</source>
@@ -192,6 +243,10 @@
     <message>
         <source>Wi-Fi</source>
         <translation>WLAN</translation>
+    </message>
+    <message>
+        <source>About</source>
+        <translation>Über</translation>
     </message>
 </context>
 <context>

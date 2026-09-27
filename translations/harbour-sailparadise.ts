@@ -2,6 +2,57 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en">
 <context>
+    <name>AboutPage</name>
+    <message>
+        <source>About</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Version %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A Radio Paradise player for Sailfish OS.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radio Paradise</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radio Paradise is an independent internet radio station. Its eclectic mixes of rock, pop, world, electronica, jazz and more are hand-picked by real humans, not by algorithms, and streamed in high quality all around the world.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radio Paradise is 100% listener-supported: no ads, no commercial sponsors. It only exists thanks to donations from people like you.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>If you enjoy the music, please consider supporting them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Donate to Radio Paradise</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This app</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SailParadise is an unofficial app and is not affiliated with Radio Paradise.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Source code</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Forum thread</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>BlockCache</name>
     <message>
         <source>No tracks available</source>
@@ -191,6 +242,10 @@
     </message>
     <message>
         <source>Wi-Fi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>About</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -6,12 +6,14 @@
 
 #include <sailfishapp.h>
 
+#include "appversion.h"
 #include "blockcache.h"
 #include "networkmonitor.h"
 
 int main(int argc, char *argv[])
 {
     QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
+    app->setApplicationVersion(QStringLiteral(APP_VERSION));
 
     qmlRegisterUncreatableType<BlockCache>("harbour.sailparadise", 1, 0, "BlockCache",
                                            QStringLiteral("Use the blockCache context property"));
