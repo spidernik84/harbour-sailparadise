@@ -59,7 +59,8 @@ DISTFILES += qml/harbour-sailparadise.qml \
     rpm/harbour-sailparadise.changes.run.in \
     rpm/harbour-sailparadise.spec \
     translations/*.ts \
-    harbour-sailparadise.desktop
+    harbour-sailparadise.desktop \
+    icons/harbour-sailparadise.svg
 
 SAILFISHAPP_ICONS = 86x86 108x108 128x128 172x172
 
