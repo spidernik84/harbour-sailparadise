@@ -22,6 +22,7 @@ SOURCES += src/harbour-sailparadise.cpp \
 HEADERS += src/blockcache.h
 
 DISTFILES += qml/harbour-sailparadise.qml \
+    qml/components/MediaControls.qml \
     qml/components/RadioPlayer.qml \
     qml/cover/CoverPage.qml \
     qml/js/Channels.js \

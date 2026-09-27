@@ -11,6 +11,11 @@ ApplicationWindow {
         id: radio
     }
 
+    // Lock screen and headset controls
+    MediaControls {
+        player: radio
+    }
+
     initialPage: Component { PlayerPage { } }
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
     allowedOrientations: defaultAllowedOrientations
