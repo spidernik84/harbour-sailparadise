@@ -185,6 +185,14 @@
         <source>Offline, track %1 of %2</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Mobile data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wi-Fi</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SettingsPage</name>
@@ -197,7 +205,39 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Channels without the selected quality fall back to their default stream</source>
+        <source>On Wi-Fi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>On mobile data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Currently connected via Wi-Fi.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Currently connected via mobile data.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connection type unknown, using the Wi-Fi quality.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Channels without the selected quality fall back to their default stream.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Player</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show stream quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shows the quality and connection type below the playback controls</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -7,6 +7,7 @@
 #include <sailfishapp.h>
 
 #include "blockcache.h"
+#include "networkmonitor.h"
 
 int main(int argc, char *argv[])
 {
@@ -14,11 +15,15 @@ int main(int argc, char *argv[])
 
     qmlRegisterUncreatableType<BlockCache>("harbour.sailparadise", 1, 0, "BlockCache",
                                            QStringLiteral("Use the blockCache context property"));
+    qmlRegisterUncreatableType<NetworkMonitor>("harbour.sailparadise", 1, 0, "NetworkMonitor",
+                                               QStringLiteral("Use the networkMonitor context property"));
 
     BlockCache blockCache;
+    NetworkMonitor networkMonitor;
 
     QScopedPointer<QQuickView> view(SailfishApp::createView());
     view->rootContext()->setContextProperty(QStringLiteral("blockCache"), &blockCache);
+    view->rootContext()->setContextProperty(QStringLiteral("networkMonitor"), &networkMonitor);
     view->setSource(SailfishApp::pathToMainQml());
     view->show();
 

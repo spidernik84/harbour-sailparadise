@@ -60,6 +60,7 @@ public:
     Q_INVOKABLE void resume(const QString &cacheId);
     Q_INVOKABLE void remove(const QString &cacheId);
     Q_INVOKABLE QVariantList tracks(const QString &cacheId) const;
+    Q_INVOKABLE QString quality(const QString &cacheId) const;
     Q_INVOKABLE qint64 estimateSize(int bitrate, int minutes) const;
     Q_INVOKABLE qint64 freeSpace() const;
 

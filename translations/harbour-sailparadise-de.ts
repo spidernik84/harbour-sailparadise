@@ -185,6 +185,14 @@
         <source>Offline, track %1 of %2</source>
         <translation>Offline, Titel %1 von %2</translation>
     </message>
+    <message>
+        <source>Mobile data</source>
+        <translation>Mobile Daten</translation>
+    </message>
+    <message>
+        <source>Wi-Fi</source>
+        <translation>WLAN</translation>
+    </message>
 </context>
 <context>
     <name>SettingsPage</name>
@@ -197,8 +205,40 @@
         <translation>Streamqualität</translation>
     </message>
     <message>
-        <source>Channels without the selected quality fall back to their default stream</source>
-        <translation>Sender ohne die gewählte Qualität verwenden ihren Standardstream</translation>
+        <source>On Wi-Fi</source>
+        <translation>Über WLAN</translation>
+    </message>
+    <message>
+        <source>On mobile data</source>
+        <translation>Über mobile Daten</translation>
+    </message>
+    <message>
+        <source>Currently connected via Wi-Fi.</source>
+        <translation>Aktuell über WLAN verbunden.</translation>
+    </message>
+    <message>
+        <source>Currently connected via mobile data.</source>
+        <translation>Aktuell über mobile Daten verbunden.</translation>
+    </message>
+    <message>
+        <source>Connection type unknown, using the Wi-Fi quality.</source>
+        <translation>Verbindungstyp unbekannt, die WLAN-Qualität wird verwendet.</translation>
+    </message>
+    <message>
+        <source>Channels without the selected quality fall back to their default stream.</source>
+        <translation>Sender ohne die gewählte Qualität verwenden ihren Standardstream.</translation>
+    </message>
+    <message>
+        <source>Player</source>
+        <translation>Player</translation>
+    </message>
+    <message>
+        <source>Show stream quality</source>
+        <translation>Streamqualität anzeigen</translation>
+    </message>
+    <message>
+        <source>Shows the quality and connection type below the playback controls</source>
+        <translation>Zeigt Qualität und Verbindungstyp unter den Wiedergabetasten an</translation>
     </message>
 </context>
 </TS>

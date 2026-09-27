@@ -204,7 +204,7 @@ Page {
                            : (item.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor)
                     truncationMode: TruncationMode.Fade
                     text: {
-                        var details = quality !== "" ? [quality] : []
+                        var details = quality !== "" ? [Channels.blockQualityLabel(quality)] : []
                         if (trackCount > 0)
                             details.push(page.formatLength(Math.round(duration / 60000)))
                         details.push(Format.formatFileSize(size))
