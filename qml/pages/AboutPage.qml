@@ -7,9 +7,7 @@ Page {
     allowedOrientations: Orientation.All
 
     readonly property string donateUrl: "https://radioparadise.com/support"
-    // Placeholders, replace with the real links once they exist
     readonly property string repositoryUrl: "https://github.com/spidernik84/harbour-sailparadise"
-    readonly property string forumUrl: "https://forum.sailfishos.org/c/applications/"
 
     SilicaFlickable {
         anchors.fill: parent
@@ -132,10 +130,6 @@ Page {
                 Button {
                     text: qsTr("Source code")
                     onClicked: Qt.openUrlExternally(page.repositoryUrl)
-                }
-                Button {
-                    text: qsTr("Forum thread")
-                    onClicked: Qt.openUrlExternally(page.forumUrl)
                 }
             }
         }
