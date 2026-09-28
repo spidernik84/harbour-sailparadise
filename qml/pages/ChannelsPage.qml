@@ -37,7 +37,8 @@ Page {
                 anchors.verticalCenter: parent.verticalCenter
                 width: Theme.itemSizeMedium
                 height: width
-                source: Channels.imageUrl(channel.id)
+                // Cached copy, depends on the revision to pick up downloaded images
+                source: channelImages.revision, channelImages.source(channel.id, Channels.imageUrl(channel.id))
                 sourceSize.width: width
                 sourceSize.height: height
                 fillMode: Image.PreserveAspectCrop

@@ -11,6 +11,7 @@ class NetworkMonitor : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(ConnectionType connectionType READ connectionType NOTIFY connectionTypeChanged)
+    Q_PROPERTY(bool online READ online NOTIFY onlineChanged)
 
 public:
     enum ConnectionType {
@@ -23,15 +24,18 @@ public:
     explicit NetworkMonitor(QObject *parent = nullptr);
 
     ConnectionType connectionType() const;
+    bool online() const;
 
 signals:
     void connectionTypeChanged();
+    void onlineChanged();
 
 private:
     void update();
 
     QNetworkConfigurationManager *m_manager;
     ConnectionType m_connectionType = Unknown;
+    bool m_online = false;
 };
 
 #endif // NETWORKMONITOR_H

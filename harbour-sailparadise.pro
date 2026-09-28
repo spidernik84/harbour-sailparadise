@@ -39,9 +39,11 @@ INCLUDEPATH += $$OUT_PWD
 
 SOURCES += src/harbour-sailparadise.cpp \
     src/blockcache.cpp \
+    src/channelimages.cpp \
     src/networkmonitor.cpp
 
 HEADERS += src/blockcache.h \
+    src/channelimages.h \
     src/networkmonitor.h
 
 DISTFILES += qml/harbour-sailparadise.qml \

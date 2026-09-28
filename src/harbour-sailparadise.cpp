@@ -8,6 +8,7 @@
 
 #include "appversion.h"
 #include "blockcache.h"
+#include "channelimages.h"
 #include "networkmonitor.h"
 
 int main(int argc, char *argv[])
@@ -22,10 +23,12 @@ int main(int argc, char *argv[])
 
     BlockCache blockCache;
     NetworkMonitor networkMonitor;
+    ChannelImages channelImages(&networkMonitor);
 
     QScopedPointer<QQuickView> view(SailfishApp::createView());
     view->rootContext()->setContextProperty(QStringLiteral("blockCache"), &blockCache);
     view->rootContext()->setContextProperty(QStringLiteral("networkMonitor"), &networkMonitor);
+    view->rootContext()->setContextProperty(QStringLiteral("channelImages"), &channelImages);
     view->setSource(SailfishApp::pathToMainQml());
     view->show();
 

@@ -20,6 +20,11 @@ NetworkMonitor::ConnectionType NetworkMonitor::connectionType() const
     return m_connectionType;
 }
 
+bool NetworkMonitor::online() const
+{
+    return m_online;
+}
+
 void NetworkMonitor::update()
 {
     // Cellular data may stay connected while Wi-Fi is up, but Wi-Fi then carries
@@ -52,5 +57,13 @@ void NetworkMonitor::update()
         m_connectionType = type;
         qDebug() << "Connection type changed:" << type;
         emit connectionTypeChanged();
+    }
+
+    // Also true for bearers that are not classified above, e.g. USB or Bluetooth tethering
+    const bool online = m_manager->isOnline();
+    if (online != m_online) {
+        m_online = online;
+        qDebug() << "Online state changed:" << online;
+        emit onlineChanged();
     }
 }
