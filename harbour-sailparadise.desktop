@@ -10,6 +10,8 @@ Name=SailParadise
 # Remember to comment out the following line, if you do not want to use
 # a different app name in German locale (de).
 Name[de]=SailParadise
+Name[it]=SailParadise
+Name[sv]=SailParadise
 
 [X-Sailjail]
 # Replace with your organization as a reverse domain name
