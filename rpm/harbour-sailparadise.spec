@@ -1,7 +1,7 @@
 Name:       harbour-sailparadise
 
 Summary:    Sailparadise
-Version:    1.3
+Version:    1.3.1
 Release:    1
 License:    LICENSE
 URL:        http://example.org/
