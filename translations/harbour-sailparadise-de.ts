@@ -47,10 +47,6 @@
         <source>Source code</source>
         <translation>Quellcode</translation>
     </message>
-    <message>
-        <source>Forum thread</source>
-        <translation>Forenthread</translation>
-    </message>
 </context>
 <context>
     <name>BlockCache</name>

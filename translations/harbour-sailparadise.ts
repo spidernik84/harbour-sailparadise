@@ -47,10 +47,6 @@
         <source>Source code</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Forum thread</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>BlockCache</name>
