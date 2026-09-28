@@ -25,6 +25,7 @@ Radio Paradise is listener-supported. If you enjoy it, please consider [supporti
 - Selection of all the Radio Paradise Channels and streaming codecs
 - Pre-loading of the tracks for offline listening (cache blocks)
 - Different streaming quality based on connection type (wifi vs mobile)
+- Supported languages: English, Italian, Swedish
 
 Currently not implemented:
 
