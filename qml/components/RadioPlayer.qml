@@ -237,6 +237,7 @@ Item {
             audio.stop()
             return
         }
+        advanceTimer.stop()
         _offlineEnded = false
         _offlineIndex = index
         _wantPlaying = true
@@ -252,6 +253,7 @@ Item {
     }
 
     function _clearOffline() {
+        advanceTimer.stop()
         audio.stop()
         audio.source = ""
         _offlineCacheId = ""
@@ -315,7 +317,7 @@ Item {
                 _errorString = ""
             } else if (status === Audio.EndOfMedia) {
                 if (offline)
-                    next()
+                    advanceTimer.restart()
                 else
                     _retry()    // A live stream should never end: the connection was dropped
             }
@@ -325,7 +327,7 @@ Item {
             console.warn("Playback error:", error, errorString)
             _errorString = errorString
             if (offline)
-                next()
+                advanceTimer.restart()
             else
                 _retry()
         }
@@ -339,6 +341,18 @@ Item {
                 audio.stop()
                 audio.play()
             }
+        }
+    }
+
+    // Moves to the next offline track once the current one ended. Loading a new
+    // source from within the Audio status/error handlers leaves the player stuck,
+    // so it is done from the event loop instead.
+    Timer {
+        id: advanceTimer
+        interval: 0
+        onTriggered: {
+            if (offline && _wantPlaying)
+                next()
         }
     }
 
