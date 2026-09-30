@@ -1,10 +1,10 @@
 Name:       harbour-sailparadise
 
 Summary:    Sailparadise
-Version:    1.3.2
+Version:    1.4.0
 Release:    1
 License:    LICENSE
-URL:        http://example.org/
+URL:        https://github.com/spidernik84/harbour-sailparadise
 Source0:    %{name}-%{version}.tar.bz2
 Requires:   sailfishsilica-qt5 >= 0.10.9
 Requires:   qt5-qtdeclarative-import-multimedia

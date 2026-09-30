@@ -55,7 +55,14 @@ Item {
     property bool _wantPlaying: false
     property int _connectionType: NetworkMonitor.Unknown
     property string _errorString
-    property var _meta: ({})
+    // Latest now_playing response and the last few distinct songs it reported. The API
+    // runs ahead of what is heard, as the audio is delayed by the server burst on connect
+    // and the player buffer, so the song actually playing is picked from the stream tags.
+    property var _latest: ({})
+    property var _history: []
+    // Title from the stream tags ("Artist - Title" for ICY, the track title for Ogg FLAC),
+    // empty when the backend does not report tags. Then the latest API response is used.
+    property string _streamTitle
     property int _retries: 0
     property int _request: 0
 
@@ -66,7 +73,9 @@ Item {
     property int _offlineIndex: -1
     property bool _offlineEnded: false
 
+    readonly property var _meta: _streamTitle !== "" ? _metaForStreamTitle(_streamTitle, _history) : _latest
     readonly property var _current: offline ? (_offlineTracks[_offlineIndex] || {}) : _meta
+    readonly property int _maxHistory: 5
     readonly property int _maxRetries: 5
     readonly property bool _metadataActive: !offline
                                             && (_wantPlaying || Qt.application.state === Qt.ApplicationActive)
@@ -88,6 +97,7 @@ Item {
 
     function stop() {
         _wantPlaying = false
+        _streamTitle = ""
         retryTimer.stop()
         _retries = 0
         if (offline)
@@ -111,7 +121,9 @@ Item {
             return
         if (channelId !== channel.id) {
             settings.channelId = channelId
-            _meta = {}
+            _latest = {}
+            _history = []
+            _streamTitle = ""
         }
         refreshMetadata()
         if (_wantPlaying)
@@ -189,7 +201,8 @@ Item {
             if (xhr.status === 200) {
                 try {
                     var data = JSON.parse(xhr.responseText)
-                    _meta = data
+                    _addToHistory(data)
+                    _latest = data
                     // "time" is the number of seconds left in the current song.
                     // Add a small margin since the stream lags behind the API.
                     if (data.time > 0)
@@ -207,6 +220,56 @@ Item {
         }
         xhr.open("GET", Channels.nowPlayingUrl(channelId))
         xhr.send()
+    }
+
+    function _addToHistory(data) {
+        var history = _history.filter(function(entry) {
+            return entry.artist !== data.artist || entry.title !== data.title
+        })
+        history.push(data)
+        _history = history.slice(-_maxHistory)
+    }
+
+    // Only letters and digits, so that differences in punctuation or a mangled
+    // encoding in the stream tags do not prevent a match
+    function _normalize(text) {
+        return (text || "").toLowerCase().replace(/[^a-z0-9]/g, "")
+    }
+
+    function _findInHistory(streamTitle, history) {
+        var tag = _normalize(streamTitle)
+        if (tag === "")
+            return null
+        for (var i = history.length - 1; i >= 0; i--) {
+            var entry = history[i]
+            if (tag === _normalize((entry.artist || "") + (entry.title || ""))
+                    || tag === _normalize(entry.title))
+                return entry
+        }
+        return null
+    }
+
+    // Metadata for the song the stream is playing. Without a matching API response
+    // only artist and title are known, split from the stream title.
+    function _metaForStreamTitle(streamTitle, history) {
+        var entry = _findInHistory(streamTitle, history)
+        if (entry)
+            return entry
+        var separator = streamTitle.indexOf(" - ")
+        if (separator < 0)
+            return { title: streamTitle }
+        return { artist: streamTitle.substring(0, separator),
+                 title: streamTitle.substring(separator + 3) }
+    }
+
+    function _updateStreamTitle() {
+        var title = offline || !_wantPlaying ? "" : (audio.metaData.title || "").toString().trim()
+        if (title === "" || title === _streamTitle)
+            return
+        _streamTitle = title
+        // The API usually already reported the song, if not ask for it now
+        if (!_findInHistory(title, _history))
+            refreshMetadata()
     }
 
     function _retry() {
@@ -248,6 +311,7 @@ Item {
         // Changing the source of a playing Audio element does not reload the
         // media, the old one keeps playing. Stop it first.
         audio.stop()
+        _streamTitle = ""
         audio.source = source
         audio.play()
     }
@@ -284,6 +348,11 @@ Item {
     Connections {
         target: networkMonitor
         onConnectionTypeChanged: _updateConnectionType()
+    }
+
+    Connections {
+        target: audio.metaData
+        onMetaDataChanged: _updateStreamTitle()
     }
 
     Connections {
