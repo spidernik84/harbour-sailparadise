@@ -81,7 +81,7 @@ Page {
                 width: parent.width
                 label: qsTr("Duration")
                 minimumValue: 0.5
-                maximumValue: 6
+                maximumValue: 4
                 stepSize: 0.5
                 value: 1
                 valueText: page.formatLength(form.minutes)

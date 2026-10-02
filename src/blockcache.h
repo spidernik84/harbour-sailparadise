@@ -89,8 +89,11 @@ private:
         qint64 requestedDuration = 0;   // ms
         QString nextEvent;
         bool metadataComplete = false;
+        // Fetching already played songs, after the upcoming ones were not enough
+        bool backfilling = false;
         int blocksFetched = 0;
         QVector<Track> tracks;
+        QVector<Track> pastTracks;      // collected while backfilling, not saved
         State state = Queued;
         QString error;
 
@@ -113,6 +116,7 @@ private:
     void step();
     void fetchBlock(Entry &entry);
     void handleBlock(const QString &cacheId, const QByteArray &data);
+    void finishBackfill(Entry &entry);
     void downloadTrack(Entry &entry, int index);
     void downloadFile(const QString &url, const QString &path, bool reportProgress,
                       const std::function<void(bool ok, const QString &error)> &done);

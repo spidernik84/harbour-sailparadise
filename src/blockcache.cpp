@@ -26,8 +26,11 @@ const char *const DefaultImageBase = "https://img.radioparadise.com/";
 const char *const UserAgent = "SailParadise (SailfishOS)";
 const char *const ManifestFile = "manifest.json";
 
-const int MaxMinutes = 6 * 60;
-const int MaxBlocks = 60;           // safety net, 6 h are ~25 blocks incl. promos
+// The API serves blocks from about 2 h ago to about 2 h ahead
+const int MaxMinutes = 4 * 60;
+const int MaxBlocks = 60;           // safety net, the whole schedule is ~20 blocks incl. promos
+// Any event older than the schedule makes the API return the oldest block it has
+const char *const OldestEvent = "1";
 const int MaxRetries = 3;
 const int RetryDelay = 5000;        // ms
 const qint64 MinFreeSpace = 64 * 1024 * 1024;
@@ -36,6 +39,11 @@ qint64 toInt64(const QJsonValue &value)
 {
     // The API mixes numbers and numeric strings
     return value.toVariant().toLongLong();
+}
+
+qint64 trackDuration(const QJsonObject &info)
+{
+    return toInt64(info.value(QStringLiteral("duration")));
 }
 
 QString buildAudioFileName(int index, const QString &event, const QString &url)
@@ -52,7 +60,7 @@ qint64 BlockCache::Entry::duration() const
 {
     qint64 total = 0;
     for (const Track &track : tracks)
-        total += toInt64(track.info.value(QStringLiteral("duration")));
+        total += trackDuration(track.info);
     return total;
 }
 
@@ -309,6 +317,10 @@ void BlockCache::load()
         entry.requestedDuration = toInt64(obj.value(QStringLiteral("requestedDuration")));
         entry.nextEvent = obj.value(QStringLiteral("nextEvent")).toString();
         entry.metadataComplete = obj.value(QStringLiteral("metadataComplete")).toBool();
+        entry.backfilling = obj.value(QStringLiteral("backfilling")).toBool();
+        // The past songs collected so far are not saved, start over
+        if (entry.backfilling && !entry.metadataComplete)
+            entry.nextEvent = QLatin1String(OldestEvent);
         entry.blocksFetched = obj.value(QStringLiteral("blocksFetched")).toInt();
         entry.state = static_cast<State>(obj.value(QStringLiteral("state")).toInt(Paused));
         entry.error = obj.value(QStringLiteral("error")).toString();
@@ -363,6 +375,7 @@ void BlockCache::save(const Entry &entry) const
     obj.insert(QStringLiteral("requestedDuration"), double(entry.requestedDuration));
     obj.insert(QStringLiteral("nextEvent"), entry.nextEvent);
     obj.insert(QStringLiteral("metadataComplete"), entry.metadataComplete);
+    obj.insert(QStringLiteral("backfilling"), entry.backfilling);
     obj.insert(QStringLiteral("blocksFetched"), entry.blocksFetched);
     obj.insert(QStringLiteral("state"), int(entry.state));
     obj.insert(QStringLiteral("error"), entry.error);
@@ -535,12 +548,20 @@ void BlockCache::handleBlock(const QString &cacheId, const QByteArray &data)
     QSet<QString> known;
     for (const Track &track : entry->tracks)
         known.insert(track.info.value(QStringLiteral("event")).toString());
+    for (const Track &track : entry->pastTracks)
+        known.insert(track.info.value(QStringLiteral("event")).toString());
 
+    QVector<Track> fresh;
+    bool reachedKnown = false;
     for (const QString &key : keys) {
         const QJsonObject song = songs.value(key).toObject();
         const QString event = song.value(QStringLiteral("event")).toString();
-        if (event.isEmpty() || known.contains(event))
+        if (event.isEmpty())
             continue;
+        if (known.contains(event)) {
+            reachedKnown = true;
+            continue;
+        }
 
         QString audioUrl = song.value(QStringLiteral("gapless_url")).toString();
         if (audioUrl.isEmpty() && keys.size() == 1)
@@ -553,13 +574,13 @@ void BlockCache::handleBlock(const QString &cacheId, const QByteArray &data)
         Track track;
         track.info = song;
         track.audioUrl = audioUrl;
-        track.audioFile = buildAudioFileName(entry->tracks.size(), event, audioUrl);
+        track.audioFile = buildAudioFileName(entry->tracks.size() + fresh.size(), event, audioUrl);
         const QString cover = song.value(QStringLiteral("cover")).toString();
         if (!cover.isEmpty()) {
             track.coverUrl = imageBase + cover;
             track.coverFile = QStringLiteral("covers/") + QFileInfo(cover).fileName();
         }
-        entry->tracks.append(track);
+        fresh.append(track);
         known.insert(event);
     }
 
@@ -569,13 +590,52 @@ void BlockCache::handleBlock(const QString &cacheId, const QByteArray &data)
     ++entry->blocksFetched;
     m_retries = 0;
 
-    if (stalled || entry->duration() >= entry->requestedDuration || entry->blocksFetched >= MaxBlocks)
-        entry->metadataComplete = true;
+    if (!entry->backfilling) {
+        entry->tracks += fresh;
+        // After the last scheduled block the API starts over with the current one,
+        // so a block without new songs is the end of the schedule
+        const bool exhausted = stalled || fresh.isEmpty();
+        if (entry->duration() >= entry->requestedDuration || entry->blocksFetched >= MaxBlocks) {
+            entry->metadataComplete = true;
+        } else if (exhausted) {
+            // Not enough upcoming songs, add the ones played before them
+            entry->backfilling = true;
+            entry->nextEvent = QLatin1String(OldestEvent);
+        }
+    } else {
+        entry->pastTracks += fresh;
+        // Done once the blocks reach the upcoming songs fetched before
+        if (stalled || reachedKnown || fresh.isEmpty() || entry->blocksFetched >= MaxBlocks)
+            finishBackfill(*entry);
+    }
 
     save(*entry);
     notifyChanged(cacheId);
     emit tracksChanged(cacheId);
     step();
+}
+
+// Puts the most recent past songs needed for the requested duration in front
+// of the upcoming ones, so the tracks stay in broadcast order
+void BlockCache::finishBackfill(Entry &entry)
+{
+    qint64 duration = entry.duration();
+    int first = entry.pastTracks.size();
+    while (first > 0 && duration < entry.requestedDuration)
+        duration += trackDuration(entry.pastTracks.at(--first).info);
+
+    entry.tracks = entry.pastTracks.mid(first) + entry.tracks;
+    entry.pastTracks.clear();
+    entry.metadataComplete = true;
+
+    // Nothing is downloaded before the metadata is complete, renumber the files to match
+    for (int i = 0; i < entry.tracks.size(); ++i) {
+        Track &track = entry.tracks[i];
+        if (!track.downloaded) {
+            track.audioFile = buildAudioFileName(i, track.info.value(QStringLiteral("event")).toString(),
+                                                 track.audioUrl);
+        }
+    }
 }
 
 void BlockCache::downloadTrack(Entry &entry, int index)
