@@ -144,6 +144,16 @@ function blockQualityLabel(quality) {
     return (quality || "").toUpperCase()
 }
 
+// Recently played songs of a channel, unlike now_playing these include the song id
+function recentSongsUrl(channelId) {
+    return apiBase + "nowplaying_list_v2022?chan=" + channelId + "&list_num=10"
+}
+
+// The song page on the website, with song info and listener comments
+function songPageUrl(songId) {
+    return "https://radioparadise.com/music/song/" + songId
+}
+
 function nowPlayingUrl(channelId) {
     return apiBase + "now_playing?chan=" + channelId
 }

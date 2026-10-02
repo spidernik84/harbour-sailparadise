@@ -248,6 +248,18 @@
         <source>Switch to %1</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Song info and comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Looking up song…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song not found on Radio Paradise</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SettingsPage</name>

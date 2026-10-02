@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import harbour.sailparadise 1.0
+import "../js/Channels.js" as Channels
 
 Page {
     id: page
@@ -80,37 +81,60 @@ Page {
                 }
             }
 
-            Column {
-                x: Theme.horizontalPageMargin
-                width: parent.width - 2 * Theme.horizontalPageMargin
-                spacing: Theme.paddingSmall
-
-                Label {
-                    width: parent.width
-                    text: radio.title
-                    color: Theme.highlightColor
-                    font.pixelSize: Theme.fontSizeLarge
-                    horizontalAlignment: Text.AlignHCenter
-                    wrapMode: Text.Wrap
+            // Tapping the song offers its page on the website
+            ListItem {
+                width: parent.width
+                contentHeight: songColumn.height + 2 * Theme.paddingSmall
+                enabled: radio.title !== ""
+                onClicked: {
+                    radio.findSongId()
+                    openMenu()
                 }
 
-                Label {
-                    width: parent.width
-                    text: radio.artist
-                    color: Theme.primaryColor
-                    font.pixelSize: Theme.fontSizeMedium
-                    horizontalAlignment: Text.AlignHCenter
-                    wrapMode: Text.Wrap
+                menu: ContextMenu {
+                    MenuItem {
+                        text: radio.songId !== "" ? qsTr("Song info and comments")
+                                                  : radio.songIdLookupRunning ? qsTr("Looking up song…")
+                                                                              : qsTr("Song not found on Radio Paradise")
+                        enabled: radio.songId !== ""
+                        onClicked: Qt.openUrlExternally(Channels.songPageUrl(radio.songId))
+                    }
                 }
 
-                Label {
-                    width: parent.width
-                    visible: radio.album !== ""
-                    text: radio.year !== "" ? radio.album + " (" + radio.year + ")" : radio.album
-                    color: Theme.secondaryColor
-                    font.pixelSize: Theme.fontSizeSmall
-                    horizontalAlignment: Text.AlignHCenter
-                    wrapMode: Text.Wrap
+                Column {
+                    id: songColumn
+                    y: Theme.paddingSmall
+                    x: Theme.horizontalPageMargin
+                    width: parent.width - 2 * Theme.horizontalPageMargin
+                    spacing: Theme.paddingSmall
+
+                    Label {
+                        width: parent.width
+                        text: radio.title
+                        color: Theme.highlightColor
+                        font.pixelSize: Theme.fontSizeLarge
+                        horizontalAlignment: Text.AlignHCenter
+                        wrapMode: Text.Wrap
+                    }
+
+                    Label {
+                        width: parent.width
+                        text: radio.artist
+                        color: Theme.primaryColor
+                        font.pixelSize: Theme.fontSizeMedium
+                        horizontalAlignment: Text.AlignHCenter
+                        wrapMode: Text.Wrap
+                    }
+
+                    Label {
+                        width: parent.width
+                        visible: radio.album !== ""
+                        text: radio.year !== "" ? radio.album + " (" + radio.year + ")" : radio.album
+                        color: Theme.secondaryColor
+                        font.pixelSize: Theme.fontSizeSmall
+                        horizontalAlignment: Text.AlignHCenter
+                        wrapMode: Text.Wrap
+                    }
                 }
             }
 

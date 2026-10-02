@@ -248,6 +248,18 @@
         <source>Switch to %1</source>
         <translation>Passa a %1</translation>
     </message>
+    <message>
+        <source>Song info and comments</source>
+        <translation>Info sul brano e commenti</translation>
+    </message>
+    <message>
+        <source>Looking up song…</source>
+        <translation>Ricerca del brano…</translation>
+    </message>
+    <message>
+        <source>Song not found on Radio Paradise</source>
+        <translation>Brano non trovato su Radio Paradise</translation>
+    </message>
 </context>
 <context>
     <name>SettingsPage</name>

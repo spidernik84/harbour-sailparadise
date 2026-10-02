@@ -244,6 +244,7 @@ QVariantList BlockCache::tracks(const QString &cacheId) const
     for (const Track &track : entry.tracks) {
         QVariantMap map;
         map.insert(QStringLiteral("event"), track.info.value(QStringLiteral("event")).toString());
+        map.insert(QStringLiteral("song_id"), track.info.value(QStringLiteral("song_id")).toString());
         map.insert(QStringLiteral("type"), track.info.value(QStringLiteral("type")).toString());
         map.insert(QStringLiteral("artist"), track.info.value(QStringLiteral("artist")).toString());
         map.insert(QStringLiteral("title"), track.info.value(QStringLiteral("title")).toString());

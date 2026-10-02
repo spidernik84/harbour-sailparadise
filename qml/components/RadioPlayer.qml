@@ -58,6 +58,10 @@ Item {
     readonly property string year: _current.year || ""
     readonly property string cover: _current.cover || ""
     readonly property string coverSmall: _current.cover_med || _current.cover || ""
+    // Id of the song on the website, empty until looked up with findSongId()
+    readonly property string songId: _current.song_id
+                                     || (_songIdKey !== "" && _songIdKey === _songKey(_current) ? _songId : "")
+    readonly property bool songIdLookupRunning: _songIdLookup !== ""
 
     property bool _wantPlaying: false
     property int _connectionType: NetworkMonitor.Unknown
@@ -76,6 +80,11 @@ Item {
     property string _streamTitle
     property int _retries: 0
     property int _request: 0
+    // Result of the last song id lookup and the song it was made for, see _songKey()
+    property string _songId
+    property string _songIdKey
+    // Song currently being looked up, empty when no lookup is running
+    property string _songIdLookup
 
     property string _offlineCacheId
     property string _offlineTitle
@@ -245,6 +254,45 @@ Item {
         }
         xhr.open("GET", Channels.nowPlayingUrl(channelId))
         xhr.send()
+    }
+
+    // Looks up the id of the current song, the now_playing response does not include it
+    function findSongId() {
+        var key = _songKey(_current)
+        if (offline || songId !== "" || key === "" || key === _songIdLookup)
+            return
+        _songIdLookup = key
+        var channelId = channel.id
+        var xhr = new XMLHttpRequest()
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState !== XMLHttpRequest.DONE || key !== _songIdLookup)
+                return
+            _songIdLookup = ""
+            var id = ""
+            if (xhr.status === 200) {
+                try {
+                    var songs = JSON.parse(xhr.responseText).song || []
+                    for (var i = 0; i < songs.length; i++) {
+                        if (_songKey(songs[i]) === key) {
+                            id = songs[i].song_id || ""
+                            break
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Invalid song list response for channel", channelId, e)
+                }
+            } else {
+                console.warn("Song list request failed for channel", channelId, xhr.status)
+            }
+            _songId = id
+            _songIdKey = key
+        }
+        xhr.open("GET", Channels.recentSongsUrl(channelId))
+        xhr.send()
+    }
+
+    function _songKey(song) {
+        return song.title ? _normalize(song.artist) + "|" + _normalize(song.title) : ""
     }
 
     function _addToHistory(data) {
