@@ -201,6 +201,14 @@ Page {
                 }
             }
 
+            // Offered when the stream kept its quality after connecting to Wi-Fi
+            Button {
+                anchors.horizontalCenter: parent.horizontalCenter
+                visible: radio.qualitySwitchAvailable
+                text: qsTr("Switch to %1").arg(radio.targetQualityLabel)
+                onClicked: radio.switchQuality()
+            }
+
             Label {
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2 * Theme.horizontalPageMargin

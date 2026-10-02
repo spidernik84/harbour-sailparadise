@@ -244,6 +244,10 @@
         <source>About</source>
         <translation>Informazioni</translation>
     </message>
+    <message>
+        <source>Switch to %1</source>
+        <translation>Passa a %1</translation>
+    </message>
 </context>
 <context>
     <name>SettingsPage</name>
@@ -290,6 +294,26 @@
     <message>
         <source>Shows the quality and connection type below the playback controls</source>
         <translation>Mostra la qualità e il tipo di connessione sotto i controlli di riproduzione</translation>
+    </message>
+    <message>
+        <source>Behavior on connection change</source>
+        <translation>Comportamento al cambio di connessione</translation>
+    </message>
+    <message>
+        <source>Applies when connecting to Wi-Fi during playback. Switching to mobile data always uses the mobile data quality.</source>
+        <translation>Si applica quando ci si connette al Wi-Fi durante la riproduzione. Passando ai dati mobili viene sempre usata la qualità per i dati mobili.</translation>
+    </message>
+    <message>
+        <source>Keep same quality</source>
+        <translation>Mantieni la stessa qualità</translation>
+    </message>
+    <message>
+        <source>Switch to quality assigned to connection</source>
+        <translation>Passa alla qualità assegnata alla connessione</translation>
+    </message>
+    <message>
+        <source>Upgrade quality only when switching to Wi-Fi</source>
+        <translation>Aumenta la qualità solo passando al Wi-Fi</translation>
     </message>
 </context>
 </TS>

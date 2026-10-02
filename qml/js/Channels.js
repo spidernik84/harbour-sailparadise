@@ -10,12 +10,19 @@ var imageBase = "https://img.radioparadise.com/channels/0/"
 var defaultQuality = "aac-320"
 var defaultMobileQuality = "aac-128"
 
+// "rank" orders the qualities from lowest to highest
 var qualities = [
-    { key: "aac-320", label: "AAC 320 kbps" },
-    { key: "aac-128", label: "AAC 128 kbps" },
-    { key: "mp3-192", label: "MP3 192 kbps" },
-    { key: "flac",    label: "FLAC" }
+    { key: "aac-320", label: "AAC 320 kbps", rank: 3 },
+    { key: "aac-128", label: "AAC 128 kbps", rank: 1 },
+    { key: "mp3-192", label: "MP3 192 kbps", rank: 2 },
+    { key: "flac",    label: "FLAC",         rank: 4 }
 ]
+
+// What happens to a playing stream when connecting to Wi-Fi: keep its quality,
+// switch to the Wi-Fi quality, or switch only when that is higher.
+// Switching to mobile data always uses the mobile data quality.
+var connectionChangeBehaviors = ["keep", "switch", "upgrade"]
+var defaultConnectionChangeBehavior = "keep"
 
 // Qualities available for offline cache blocks, "bitrate" as used by the block API
 var cacheQualities = [
@@ -109,6 +116,14 @@ function streamQuality(channel, quality) {
 function streamUrl(channel, quality) {
     var key = streamQuality(channel, quality)
     return key !== "" ? channel.streams[key] : ""
+}
+
+function qualityRank(key) {
+    for (var i = 0; i < qualities.length; i++) {
+        if (qualities[i].key === key)
+            return qualities[i].rank
+    }
+    return 0
 }
 
 function qualityLabel(key) {

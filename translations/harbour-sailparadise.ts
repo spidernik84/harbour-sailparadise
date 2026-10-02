@@ -244,6 +244,10 @@
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Switch to %1</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SettingsPage</name>
@@ -289,6 +293,26 @@
     </message>
     <message>
         <source>Shows the quality and connection type below the playback controls</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Behavior on connection change</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Applies when connecting to Wi-Fi during playback. Switching to mobile data always uses the mobile data quality.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keep same quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to quality assigned to connection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Upgrade quality only when switching to Wi-Fi</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -244,6 +244,10 @@
         <source>About</source>
         <translation>Om</translation>
     </message>
+    <message>
+        <source>Switch to %1</source>
+        <translation>Byt till %1</translation>
+    </message>
 </context>
 <context>
     <name>SettingsPage</name>
@@ -290,6 +294,26 @@
     <message>
         <source>Shows the quality and connection type below the playback controls</source>
         <translation>Visar kvalitet och anslutningstyp under uppspelningskontrollerna</translation>
+    </message>
+    <message>
+        <source>Behavior on connection change</source>
+        <translation>Beteende vid anslutningsbyte</translation>
+    </message>
+    <message>
+        <source>Applies when connecting to Wi-Fi during playback. Switching to mobile data always uses the mobile data quality.</source>
+        <translation>Gäller vid anslutning till Wi-Fi under uppspelning. Vid byte till mobildata används alltid kvaliteten för mobildata.</translation>
+    </message>
+    <message>
+        <source>Keep same quality</source>
+        <translation>Behåll samma kvalitet</translation>
+    </message>
+    <message>
+        <source>Switch to quality assigned to connection</source>
+        <translation>Byt till kvaliteten för anslutningen</translation>
+    </message>
+    <message>
+        <source>Upgrade quality only when switching to Wi-Fi</source>
+        <translation>Höj kvaliteten endast vid byte till Wi-Fi</translation>
     </message>
 </context>
 </TS>

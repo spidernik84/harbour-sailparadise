@@ -85,6 +85,27 @@ Page {
                 }
             }
 
+            ComboBox {
+                label: qsTr("Behavior on connection change")
+                description: qsTr("Applies when connecting to Wi-Fi during playback. Switching to mobile data always uses the mobile data quality.")
+                currentIndex: Math.max(0, Channels.connectionChangeBehaviors.indexOf(radio.connectionChangeBehavior))
+
+                menu: ContextMenu {
+                    MenuItem {
+                        text: qsTr("Keep same quality")
+                        onClicked: radio.setConnectionChangeBehavior("keep")
+                    }
+                    MenuItem {
+                        text: qsTr("Switch to quality assigned to connection")
+                        onClicked: radio.setConnectionChangeBehavior("switch")
+                    }
+                    MenuItem {
+                        text: qsTr("Upgrade quality only when switching to Wi-Fi")
+                        onClicked: radio.setConnectionChangeBehavior("upgrade")
+                    }
+                }
+            }
+
             SectionHeader {
                 text: qsTr("Player")
             }

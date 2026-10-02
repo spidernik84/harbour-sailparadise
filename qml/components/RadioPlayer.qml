@@ -20,9 +20,16 @@ Item {
     readonly property string quality: onMobileData ? mobileQuality : wifiQuality
     readonly property int connectionType: _connectionType
     readonly property bool showQualityInfo: settings.showQualityInfo
+    // One of Channels.connectionChangeBehaviors
+    readonly property string connectionChangeBehavior: settings.connectionChangeBehavior
     // Human readable quality of what is playing
     readonly property string qualityLabel: offline ? Channels.blockQualityLabel(_offlineQuality)
-                                                   : Channels.qualityLabel(Channels.streamQuality(channel, quality))
+                                                   : Channels.qualityLabel(_playingQuality)
+    // The live stream plays with another quality than the one for the current
+    // connection, e.g. after connecting to Wi-Fi. switchQuality() reconnects.
+    readonly property bool qualitySwitchAvailable: _wantPlaying && !offline && _streamQuality !== ""
+                                                   && _streamQuality !== _targetQuality
+    readonly property string targetQualityLabel: Channels.qualityLabel(_targetQuality)
 
     // Offline playback of a cache block
     readonly property bool offline: _offlineCacheId !== ""
@@ -54,6 +61,10 @@ Item {
 
     property bool _wantPlaying: false
     property int _connectionType: NetworkMonitor.Unknown
+    // Set while the connection type changes, the reconnect is then decided by _updateConnectionType()
+    property bool _connectionChanging: false
+    // Quality of the live stream that was loaded, empty when none was
+    property string _streamQuality
     property string _errorString
     // Latest now_playing response and the last few distinct songs it reported. The API
     // runs ahead of what is heard, as the audio is delayed by the server burst on connect
@@ -73,6 +84,8 @@ Item {
     property int _offlineIndex: -1
     property bool _offlineEnded: false
 
+    readonly property string _targetQuality: Channels.streamQuality(channel, quality)
+    readonly property string _playingQuality: _wantPlaying && _streamQuality !== "" ? _streamQuality : _targetQuality
     readonly property var _meta: _streamTitle !== "" ? _metaForStreamTitle(_streamTitle, _history) : _latest
     readonly property var _current: offline ? (_offlineTracks[_offlineIndex] || {}) : _meta
     readonly property int _maxHistory: 5
@@ -92,6 +105,7 @@ Item {
             return
         }
         _wantPlaying = true
+        _streamQuality = _targetQuality
         _load(Channels.streamUrl(channel, quality))
     }
 
@@ -142,9 +156,20 @@ Item {
         settings.showQualityInfo = show
     }
 
-    // Reconnect with the new stream, e.g. when switching between Wi-Fi and mobile data
+    function setConnectionChangeBehavior(key) {
+        settings.connectionChangeBehavior = key
+    }
+
+    // Reconnects the live stream with the quality for the current connection
+    function switchQuality() {
+        if (qualitySwitchAvailable)
+            play()
+    }
+
+    // Reconnect with the new quality after a settings change. Connection changes
+    // are handled by _updateConnectionType().
     onQualityChanged: {
-        if (_wantPlaying && !offline)
+        if (_wantPlaying && !offline && !_connectionChanging && _streamQuality !== _targetQuality)
             play()
     }
 
@@ -336,8 +361,30 @@ Item {
     }
 
     function _updateConnectionType() {
-        if (networkMonitor.connectionType !== NetworkMonitor.Unknown)
-            _connectionType = networkMonitor.connectionType
+        var type = networkMonitor.connectionType
+        if (type === NetworkMonitor.Unknown || type === _connectionType)
+            return
+        // The "quality" binding and its change handler run synchronously within the assignment
+        _connectionChanging = true
+        _connectionType = type
+        _connectionChanging = false
+        if (_wantPlaying && !offline && _streamQuality !== _targetQuality && _switchOnConnectionChange(type))
+            play()
+    }
+
+    // Mobile data always gets its own quality. On Wi-Fi the stream keeps playing
+    // as it is, unless set otherwise, and the player offers the switch.
+    function _switchOnConnectionChange(type) {
+        if (type !== NetworkMonitor.WiFi)
+            return true
+        switch (settings.connectionChangeBehavior) {
+        case "switch":
+            return true
+        case "upgrade":
+            return Channels.qualityRank(_targetQuality) > Channels.qualityRank(_streamQuality)
+        default:
+            return false
+        }
     }
 
     Component.onCompleted: {
@@ -373,6 +420,7 @@ Item {
         property string quality: Channels.defaultQuality
         property string mobileQuality: Channels.defaultMobileQuality
         property bool showQualityInfo: true
+        property string connectionChangeBehavior: Channels.defaultConnectionChangeBehavior
     }
 
     Audio {
