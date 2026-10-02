@@ -15,7 +15,7 @@ Name[sv]=SailParadise
 
 [X-Sailjail]
 # Replace with your organization as a reverse domain name
-OrganizationName=org.myorg
+OrganizationName=io.github.spidernik84
 # ApplicationName does not have to be identical to Name
 ApplicationName=sailparadise
 # Add the required permissions here
