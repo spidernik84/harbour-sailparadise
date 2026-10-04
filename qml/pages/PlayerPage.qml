@@ -34,6 +34,11 @@ Page {
                 onClicked: pageStack.animatorPush(Qt.resolvedUrl("ChannelsPage.qml"))
             }
             MenuItem {
+                text: radio.tracking ? qsTr("Stop tracking") : qsTr("Track without playing")
+                visible: !radio.offline && !radio.active
+                onClicked: radio.setTracking(!radio.tracking)
+            }
+            MenuItem {
                 text: qsTr("Back to live radio")
                 visible: radio.offline
                 onClicked: radio.setChannel(radio.channel.id)
@@ -110,7 +115,7 @@ Page {
 
                     Label {
                         width: parent.width
-                        text: radio.title
+                        text: radio.idle ? qsTr("Not playing") : radio.title
                         color: Theme.highlightColor
                         font.pixelSize: Theme.fontSizeLarge
                         horizontalAlignment: Text.AlignHCenter

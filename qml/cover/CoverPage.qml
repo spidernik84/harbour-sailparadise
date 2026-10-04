@@ -31,7 +31,7 @@ CoverBackground {
 
         Label {
             width: parent.width
-            text: radio.title
+            text: radio.idle ? qsTr("Not playing") : radio.title
             color: Theme.highlightColor
             font.pixelSize: Theme.fontSizeSmall
             wrapMode: Text.Wrap

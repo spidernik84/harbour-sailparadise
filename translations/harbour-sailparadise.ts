@@ -209,6 +209,10 @@
         <source>Offline</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Not playing</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PlayerPage</name>
@@ -258,6 +262,18 @@
     </message>
     <message>
         <source>Song not found on Radio Paradise</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not playing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop tracking</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Track without playing</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

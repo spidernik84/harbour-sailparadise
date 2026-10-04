@@ -51,19 +51,28 @@ Item {
                                           || audio.status === Audio.Stalled
                                           || !playing)
     readonly property string errorString: _errorString
+    // Follow the live metadata without playing the stream
+    readonly property bool tracking: _tracking
+    // Live radio that is neither playing nor tracking: no song metadata is fetched,
+    // the channel image is shown
+    readonly property bool idle: !offline && !_wantPlaying && !_tracking
+    // Cached copy, depends on the revision to pick up downloaded images
+    readonly property string channelImage: channelImages.revision,
+                                           channelImages.source(channel.id, Channels.imageUrl(channel.id))
 
     readonly property string artist: _current.artist || ""
     readonly property string title: _current.title || ""
     readonly property string album: _current.album || ""
     readonly property string year: _current.year || ""
-    readonly property string cover: _current.cover || ""
-    readonly property string coverSmall: _current.cover_med || _current.cover || ""
+    readonly property string cover: idle ? channelImage : (_current.cover || "")
+    readonly property string coverSmall: idle ? channelImage : (_current.cover_med || _current.cover || "")
     // Id of the song on the website, empty until looked up with findSongId()
     readonly property string songId: _current.song_id
                                      || (_songIdKey !== "" && _songIdKey === _songKey(_current) ? _songId : "")
     readonly property bool songIdLookupRunning: _songIdLookup !== ""
 
     property bool _wantPlaying: false
+    property bool _tracking: false
     property int _connectionType: NetworkMonitor.Unknown
     // Set while the connection type changes, the reconnect is then decided by _updateConnectionType()
     property bool _connectionChanging: false
@@ -96,11 +105,10 @@ Item {
     readonly property string _targetQuality: Channels.streamQuality(channel, quality)
     readonly property string _playingQuality: _wantPlaying && _streamQuality !== "" ? _streamQuality : _targetQuality
     readonly property var _meta: _streamTitle !== "" ? _metaForStreamTitle(_streamTitle, _history) : _latest
-    readonly property var _current: offline ? (_offlineTracks[_offlineIndex] || {}) : _meta
+    readonly property var _current: offline ? (_offlineTracks[_offlineIndex] || {}) : idle ? ({}) : _meta
     readonly property int _maxHistory: 5
     readonly property int _maxRetries: 5
-    readonly property bool _metadataActive: !offline
-                                            && (_wantPlaying || Qt.application.state === Qt.ApplicationActive)
+    readonly property bool _metadataActive: !offline && (_wantPlaying || _tracking)
 
     function play() {
         _errorString = ""
@@ -123,10 +131,19 @@ Item {
         _streamTitle = ""
         retryTimer.stop()
         _retries = 0
-        if (offline)
+        if (offline) {
             audio.pause()
-        else
+        } else {
             audio.stop()
+            if (!_tracking)
+                _clearMetadata()
+        }
+    }
+
+    function setTracking(enabled) {
+        _tracking = enabled
+        if (idle)
+            _clearMetadata()
     }
 
     function toggle() {
@@ -148,7 +165,8 @@ Item {
             _history = []
             _streamTitle = ""
         }
-        refreshMetadata()
+        if (_metadataActive)
+            refreshMetadata()
         if (_wantPlaying)
             play()
     }
@@ -200,7 +218,6 @@ Item {
             return
         stop()
         _clearOffline()
-        refreshMetadata()
     }
 
     function next() {
@@ -389,6 +406,13 @@ Item {
         audio.play()
     }
 
+    // Forgets the songs and drops a pending response, they are stale once fetching again
+    function _clearMetadata() {
+        _request++
+        _latest = {}
+        _history = []
+    }
+
     function _clearOffline() {
         advanceTimer.stop()
         audio.stop()
@@ -437,7 +461,6 @@ Item {
 
     Component.onCompleted: {
         _updateConnectionType()
-        refreshMetadata()
     }
 
     Connections {
