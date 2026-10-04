@@ -51,6 +51,8 @@ Item {
                                           || audio.status === Audio.Stalled
                                           || !playing)
     readonly property string errorString: _errorString
+    // Nothing was played or picked yet since the app was installed
+    readonly property bool firstLaunch: settings.firstLaunch
     // Follow the live metadata without playing the stream
     readonly property bool tracking: _tracking
     // Live radio that is neither playing nor tracking: no song metadata is fetched,
@@ -111,6 +113,7 @@ Item {
     readonly property bool _metadataActive: !offline && (_wantPlaying || _tracking)
 
     function play() {
+        settings.firstLaunch = false
         _errorString = ""
         if (offline) {
             if (_offlineIndex < 0 || _offlineEnded) {
@@ -121,6 +124,8 @@ Item {
             }
             return
         }
+        // Playing and tracking exclude each other
+        _tracking = false
         _wantPlaying = true
         _streamQuality = _targetQuality
         _load(Channels.streamUrl(channel, quality))
@@ -141,7 +146,12 @@ Item {
     }
 
     function setTracking(enabled) {
+        if (enabled)
+            settings.firstLaunch = false
         _tracking = enabled
+        // Tracking replaces live playback, the metadata stays as it is
+        if (enabled && _wantPlaying && !offline)
+            stop()
         if (idle)
             _clearMetadata()
     }
@@ -154,6 +164,7 @@ Item {
     }
 
     function setChannel(channelId) {
+        settings.firstLaunch = false
         var changed = offline || channelId !== channel.id
         if (offline)
             _clearOffline()
@@ -487,6 +498,7 @@ Item {
         path: "/apps/harbour-sailparadise"
 
         property int channelId: 0
+        property bool firstLaunch: true
         // Wi-Fi quality, the key predates the mobile data setting
         property string quality: Channels.defaultQuality
         property string mobileQuality: Channels.defaultMobileQuality

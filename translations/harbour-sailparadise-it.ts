@@ -47,6 +47,10 @@
         <source>Source code</source>
         <translation>Codice sorgente</translation>
     </message>
+    <message>
+        <source>Author %1</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>BlockCache</name>
@@ -274,6 +278,10 @@
     </message>
     <message>
         <source>Track without playing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pull down and open Channels to pick a channel</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

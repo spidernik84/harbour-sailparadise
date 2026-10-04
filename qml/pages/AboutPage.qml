@@ -55,7 +55,7 @@ Page {
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2 * Theme.horizontalPageMargin
                 wrapMode: Text.Wrap
-                color: Theme.highlightColor
+                color: Theme.secondaryHighlightColor
                 font.pixelSize: Theme.fontSizeSmall
                 text: qsTr("A Radio Paradise player for Sailfish OS.")
             }
@@ -68,7 +68,7 @@ Page {
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2 * Theme.horizontalPageMargin
                 wrapMode: Text.Wrap
-                color: Theme.highlightColor
+                color: Theme.secondaryHighlightColor
                 font.pixelSize: Theme.fontSizeSmall
                 text: qsTr("Radio Paradise is an independent internet radio station. "
                            + "Its eclectic mixes of rock, pop, world, electronica, jazz and more "
@@ -82,7 +82,6 @@ Page {
                 wrapMode: Text.Wrap
                 color: Theme.highlightColor
                 font.pixelSize: Theme.fontSizeSmall
-                font.bold: true
                 text: qsTr("Radio Paradise is 100% listener-supported: no ads, no commercial "
                            + "sponsors. It only exists thanks to donations from people like you.")
             }
@@ -91,7 +90,7 @@ Page {
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2 * Theme.horizontalPageMargin
                 wrapMode: Text.Wrap
-                color: Theme.highlightColor
+                color: Theme.secondaryHighlightColor
                 font.pixelSize: Theme.fontSizeSmall
                 text: qsTr("If you enjoy the music, please consider supporting them.")
             }
@@ -121,9 +120,10 @@ Page {
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2 * Theme.horizontalPageMargin
                 wrapMode: Text.Wrap
-                color: Theme.highlightColor
+                horizontalAlignment: Text.AlignHCenter
+                color: Theme.secondaryHighlightColor
                 font.pixelSize: Theme.fontSizeSmall
-                text: "© 2026 spidernik84"
+                text: qsTr("Author %1").arg("spidernik84")
             }
 
             ButtonLayout {

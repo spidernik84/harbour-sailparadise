@@ -12,11 +12,31 @@ Page {
     // Used by other pages to navigate back to the player
     readonly property bool isPlayerPage: true
 
+    // On first launch, suggest picking a channel from the pull-down menu
+    function _showFirstLaunchHint() {
+        if (radio.firstLaunch && status === PageStatus.Active && !pullDownMenu.active)
+            firstLaunchHint.start()
+    }
+
+    onStatusChanged: _showFirstLaunchHint()
+
+    Connections {
+        target: radio
+        onFirstLaunchChanged: firstLaunchHint.stop()
+    }
+
     SilicaFlickable {
         anchors.fill: parent
         contentHeight: column.height + Theme.paddingLarge
 
         PullDownMenu {
+            id: pullDownMenu
+
+            onActiveChanged: {
+                if (active)
+                    firstLaunchHint.stop()
+            }
+
             MenuItem {
                 text: qsTr("About")
                 onClicked: pageStack.animatorPush(Qt.resolvedUrl("AboutPage.qml"))
@@ -35,7 +55,7 @@ Page {
             }
             MenuItem {
                 text: radio.tracking ? qsTr("Stop tracking") : qsTr("Track without playing")
-                visible: !radio.offline && !radio.active
+                visible: !radio.offline
                 onClicked: radio.setTracking(!radio.tracking)
             }
             MenuItem {
@@ -67,7 +87,7 @@ Page {
                 Image {
                     id: coverImage
                     anchors.fill: parent
-                    source: radio.cover
+                    source: radio.firstLaunch ? "" : radio.cover
                     fillMode: Image.PreserveAspectCrop
                     asynchronous: true
                     smooth: true
@@ -81,7 +101,18 @@ Page {
 
                     Icon {
                         anchors.centerIn: parent
+                        visible: !radio.firstLaunch
                         source: "image://theme/icon-l-music"
+                    }
+
+                    Image {
+                        anchors.centerIn: parent
+                        visible: radio.firstLaunch
+                        width: Theme.iconSizeExtraLarge
+                        height: width
+                        source: "/usr/share/icons/hicolor/172x172/apps/harbour-sailparadise.png"
+                        sourceSize.width: width
+                        sourceSize.height: height
                     }
                 }
             }
@@ -251,5 +282,19 @@ Page {
         }
 
         VerticalScrollDecorator {}
+    }
+
+    InteractionHintLabel {
+        anchors.bottom: parent.bottom
+        text: qsTr("Pull down and open Channels to pick a channel")
+        opacity: firstLaunchHint.running ? 1.0 : 0.0
+        Behavior on opacity { FadeAnimation {} }
+    }
+
+    TouchInteractionHint {
+        id: firstLaunchHint
+        direction: TouchInteraction.Down
+        anchors.horizontalCenter: parent.horizontalCenter
+        loops: 3
     }
 }
