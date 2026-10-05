@@ -1,3 +1,7 @@
+* Mon Oct 5 2026 spidernik84 <spidernik84@users.noreply.github.com> - 1.6.1
+- Fixed playback/pause detection
+- Introduced preloading of next song metadata and cover
+
 * sun Oct 4 2026 spidernik84 <spidernik84@users.noreply.github.com> - 1.6.0
 - Welcome hint at first startup with Sailparadise placeholder
 - Offer option to track only, without playback

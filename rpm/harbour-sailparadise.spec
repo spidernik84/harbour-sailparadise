@@ -1,7 +1,7 @@
 Name:       harbour-sailparadise
 
 Summary:    Sailparadise
-Version:    1.6.0
+Version:    1.6.1
 Release:    1
 License:    LICENSE
 URL:        https://github.com/spidernik84/harbour-sailparadise
