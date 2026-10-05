@@ -523,6 +523,14 @@ Item {
             }
         }
 
+        // The player never pauses itself while audio is wanted: another app took the
+        // audio resources (a call, another player) and the backend paused playback.
+        // Stop as well, so that the controls and the cover reflect it.
+        onPlaybackStateChanged: {
+            if (playbackState === Audio.PausedState && _wantPlaying)
+                root.stop()    // Unqualified, stop() would be the Audio element's own
+        }
+
         onError: {
             console.warn("Playback error:", error, errorString)
             _errorString = errorString
